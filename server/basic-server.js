@@ -1,4 +1,6 @@
+/* eslint-disable no-console */
 /* node 의 모듈들을 불러옵니다. */
+const requestHandler = require("./request-handler");
 const http = require("http");
 
 // 모든 서버는 요청을 받을수 있는 포트 번호를 필요로 합니다.
