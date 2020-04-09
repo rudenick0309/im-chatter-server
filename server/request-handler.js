@@ -31,12 +31,17 @@ const requestHandler = function (request, response) {
     if (request.method === "OPTIONS") {
       response.writeHead(200, headers);
       response.end();
+      console.log(1);
     } else if (request.method !== "POST") {
       response.end("4040404040");
+      console.log(2);
     } else if (request.method === "POST") {
+      console.log(3);
       if (request.url === "/") {
         //이거를 한번 변경하는 것을 고려.
         response.end(message);
+        console.log(4);
+
         // response.end();
         console.log("리퀘스트 안의 유알엘", message);
       }
