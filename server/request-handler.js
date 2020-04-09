@@ -12,29 +12,6 @@ const requestHandler = function (request, response) {
   // node server 의 requestHandler는 항상 request, response를 인자로 받습니다.
   // console.log(request);
 
-  request.setEncoding("utf8");
-  var message = ""; //메세지 배열에 문자가 들어갔다고 가정.
-  request.on("data", (chunk) => {
-    message += chunk;
-  });
-
-  request.on("end", () => {
-    // console.log("리퀘스트", message); // 이거를 지우고
-    if (request.method === "OPTIONS") {
-      response.writeHead(200, headers);
-      response.end();
-    } else if (request.method !== "POST") {
-      response.end("4040404040");
-    } else if (request.method === "POST") {
-      if (request.url === "/") {
-        //이거를 한번 변경하는 것을 고려.
-        // response.end(JSON.stringify(message));
-        response.end();
-        console.log("리퀘스트 안의 유알엘", message);
-      }
-    }
-  });
-
   /*
       여기에
     */
@@ -50,6 +27,35 @@ const requestHandler = function (request, response) {
   //
   // 간단한 로그를 작성 하는 것은, 서버를 디버깅 하는데 매우 수월하게 해줍니다.
   // 아래는 모든 리퀘스트의 메소드와 url을 로깅 해줍니다.
+  request.setEncoding("utf8");
+  var message = []; //메세지 배열에 문자가 들어갔다고 가정.
+  request.on("data", (chunk) => {
+    message.push(chunk);
+  });
+
+  request.on("end", () => {
+    // console.log("리퀘스트", message); // 이거를 지우고
+    if (request.method === "OPTIONS") {
+      response.writeHead(200, headers);
+      response.end();
+      console.log(1);
+    } else if (request.method !== "POST") {
+      response.end("4040404040");
+      console.log(2);
+    } else if (request.method === "POST") {
+      console.log(3);
+      if (request.url === "/") {
+        //이거를 한번 변경하는 것을 고려.
+        response.end(message);
+        console.log(4);
+
+        // response.end();
+        console.log("리퀘스트 안의 유알엘", message);
+      }
+    }
+  });
+
+  console.log("request : " + request.url);
   console.log(
     "Serving request type " + request.method + " for url " + request.url
   );
