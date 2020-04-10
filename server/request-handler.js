@@ -8,7 +8,7 @@ reuqestHandler 함수는 이미 basic-server.js 파일에서 사용 했지만, �
 requestHandler 함수를 export 하여 basic-server.js 에서 사용 할 수 있게 하세요
 
 **************************************************************/
-
+let users = { results: [] }; //db가없기떄문 메모리담을공간
 const requestHandler = function (request, response) {
   // node server 의 requestHandler는 항상 request, response를 인자로 받습니다.
 
@@ -20,33 +20,48 @@ const requestHandler = function (request, response) {
   //
   // 간단한 로그를 작성 하는 것은, 서버를 디버깅 하는데 매우 수월하게 해줍니다.
   // 아래는 모든 리퀘스트의 메소드와 url을 로깅 해줍니다.
-  request.setEncoding("utf8");
-  var message = []; //메세지 배열에 문자가 들어갔다고 가정.
-  request.on("data", (chunk) => {
-    message.push(chunk);
-  });
+  // request.setEncoding("utf8");
+  //메세지 배열에 문자가 들어갔다고 가정.
+  const statusCode = 200;
+  const headers = defaultCorsHeaders;
+  headers["Content-Type"] = "text/plain";
 
-  request.on("end", () => {
-    // console.log("리퀘스트", message); // 이거를 지우고
-    if (request.method === "OPTIONS") {
-      response.writeHead(200, headers);
+  if (request.method === "OPTIONS") {
+    response.writeHead(200, headers);
+    response.end();
+  } else if (request.method === "GET") {
+    if (request.url === "/classes/messages") {
+      response.writeHead(statusCode, headers);
+      response.end(JSON.stringify(users));
+    } else {
+      response.writeHead(404, headers);
       response.end();
-      console.log(1);
-    } else if (request.method !== "POST") {
-      response.end("4040404040");
-      console.log(2);
-    } else if (request.method === "POST") {
-      console.log(3);
-      if (request.url === "/") {
-        //이거를 한번 변경하는 것을 고려.
-        response.end(message);
-        console.log(4);
-
-        // response.end();
-        console.log("리퀘스트 안의 유알엘", message);
-      }
     }
-  });
+  } else if (request.method === "POST") {
+    if (request.url === "/classes/messages") {
+      let body = [];
+      //chunk를 모을수있게 !
+      //프론트로부터 요청이들어오면 (스트림으로들어온다) 바디에담는다
+      request.on("data", (chunk) => {
+        body.push(chunk);
+      });
+      request.on("end", () => {
+        console.log("POST 본문(body)", body);
+        body = Buffer.concat(body).toString();
+        users.results.push(JSON.parse(body));
+        //post요청이들어오면-->  (본문:body)를 해석 파싱후 users에 넣는다.
+
+        response.writeHead(201, headers);
+        response.end(JSON.stringify(users));
+      });
+    } else {
+      request.on("error", (err) => {
+        response.writeHead(404, headers);
+        response.end();
+        console.error(err);
+      });
+    }
+  }
 
   console.log("request : " + request.url);
   console.log(
@@ -54,19 +69,17 @@ const requestHandler = function (request, response) {
   );
 
   // 응답을 위한 status 코드입니다.
-  const statusCode = 200;
 
   // 기본 CORS 설정이 되어있는 코드 입니다. 아래에 있습니다.
   // CORS에 대해서는 조금더 알아보세요.
-  const headers = defaultCorsHeaders;
+
   // 응답 헤더에 응답하는 컨텐츠의 자료 타입을 헤더에 기록 합니다.
-  headers["Content-Type"] = "text/plain";
 
   // .writeHead() 메소드는 응답 헤더에 해당 key, value 를 적어줍니다.
-  response.writeHead(statusCode, headers);
-
+  // response.writeHead(statusCode, headers);
+  // response.write(JSON.stringify(users));
   // 노드 서버에 대한 모든 요청은 응답이 있어야 합니다. response.end 메소드는 요청에 대한 응답을 보내줍니다.
-  // response.end("Hello, World!");
+  // response.end();
 };
 
 // These headers will allow Cross-Origin Resource Sharing (CORS).
