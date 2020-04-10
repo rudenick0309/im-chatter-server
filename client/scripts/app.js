@@ -1,7 +1,7 @@
 // YOUR CODE HERE:
 
 const app = {
-  server: "http://localhost:3000/",
+  server: "http://localhost:3000/classes/messages",
   init: () => {
     app.addEventHandlers();
     app.fetch((json) => {
